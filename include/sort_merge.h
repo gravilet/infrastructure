@@ -3,7 +3,7 @@
 
 namespace cormen {
 
-    void merge(std::vector<int>& nums, int x, int y, int z);
+    void merge(std::vector<int>* nums, int x, int y, int z);
 
 }
 
