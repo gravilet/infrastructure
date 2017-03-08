@@ -3,7 +3,9 @@
 
 namespace cormen {
 
-    void merge(std::vector<int>* nums, int x, int y, int z);
+    void merge(std::vector<int>* nums, unsigned long long l, unsigned long long m, unsigned long long r);
+    void sort_merge_subtask(std::vector<int>* nums, unsigned long long l, unsigned long long r);
+    void sort_merge(std::vector<int>* nums);
 
 }
 
