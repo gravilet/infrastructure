@@ -1,13 +1,6 @@
 #include <gtest/gtest.h>
 #include <sort_merge.h>
 
-//TEST(Sort_Merge, Simple_Check) {
-//    // test 1
-//    std::vector<int> x_001 = {7, 9, 2};
-//    cormen::sort_merge(&x_001);
-//    EXPECT_EQ(std::vector<int>({2, 7, 9}), x_001);
-//}
-
 TEST(Sort_Merge, Simple_Check_001) {
     std::vector<int> x_001 = {7, 9, 2};
     std::vector<int> x_001_expected = x_001;

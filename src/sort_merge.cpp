@@ -55,7 +55,7 @@ namespace cormen {
     void merge(std::vector<int>* p_nums, int64_t l, int64_t m, int64_t r) {
         // merge two parts - indexed by [l ... m] and [m+1 ... r]
 
-        //std::vector<int>& nums = *p_nums;
+        // std::vector<int>& nums = *p_nums;
         int64_t ptr_1 = l;
         int64_t ptr_2 = m + 1;
 
