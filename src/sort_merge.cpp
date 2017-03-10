@@ -1,7 +1,6 @@
 #include <vector>
 #include <queue>
-#include <stdint-gcc.h>
-#include <w32api/tchar.h>
+#include <cstddef>
 
 namespace cormen {
 
