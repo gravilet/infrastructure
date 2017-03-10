@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.1)
+cmake_minimum_required(VERSION 2.8)
 
 project(infrastructure)
 
@@ -18,3 +18,5 @@ add_subdirectory(3rdparty)
 add_subdirectory(src)
 add_subdirectory(app)
 add_subdirectory(test)
+
+

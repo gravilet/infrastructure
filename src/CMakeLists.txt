@@ -1,7 +1,7 @@
-file(GLOB_RECURSE CPPS *.cpp)
-file(GLOB_RECURSE HPPS ../include/*.h ../include/*.hpp)
+file(GLOB_RECURSE CPPS "*.cpp")
+file(GLOB_RECURSE HPPS "*.h")
 
 include_directories(../include)
 
-add_library(code_lib ${CPPS} ${HPPS})
+add_library(code ${CPPS} ${HPPS})
 
