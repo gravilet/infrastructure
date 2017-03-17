@@ -22,6 +22,7 @@ namespace gravilet {
         }
     }
 
+    // find hash - position in collection for the 'key'
     size_t OpenAddressingHash::find_hash(std::string key) const {
         size_t hash = calculate_hash_function(key, collection_size);
         int tmp = 0;
@@ -38,9 +39,10 @@ namespace gravilet {
         return hash;
     }
 
-    std::string OpenAddressingHash::find(std::string key) const {
+    const std::string* OpenAddressingHash::find(std::string key) const {
         size_t hash = find_hash(key);
-        return (hash != -1) ? std::get<2>(collection[hash]) : nullptr;
+        return (hash != -1 && std::get<0>(collection[hash])) ?
+               &std::get<2>(collection[hash]) : nullptr;
     }
 
     void OpenAddressingHash::erase(std::string key) {
@@ -67,5 +69,23 @@ namespace gravilet {
 
     size_t OpenAddressingHash::size() {
         return current_size;
+    }
+
+    int OpenAddressingHash::count(std::string key) const {
+        size_t hash = find_hash(key);
+        if (std::get<0>(collection[hash]))
+            return 1;
+        else
+            return 0;
+    }
+
+    std::string OpenAddressingHash::operator[](std::string key) {
+        int cnt = count(key);
+        if (cnt == 0) {
+            insert(key, "");    // let "" be default value
+            return "";
+        } else {
+            return *find(key);
+        }
     }
 }   // namespace gravilet
