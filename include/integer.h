@@ -29,17 +29,17 @@ class integer {
 
  public:
     // constructors
-    explicit integer(int a = 0) : value(a) {}
-    explicit integer(double a) : value(static_cast<int>(a)) {}
+//    explicit integer(int a = 0) : value(a) {}
+    explicit integer(double a = 0) : value(a) {}
     // operator== / operator!=
     friend bool operator==(const integer& a, const integer& b);
     friend bool operator!=(const integer& a, const integer& b);
-    friend bool operator==(int a, const integer& b);
-    friend bool operator!=(int a, const integer& b);
+//    friend bool operator==(int a, const integer& b);
+//    friend bool operator!=(int a, const integer& b);
     friend bool operator==(double a, const integer& b);
     friend bool operator!=(double a, const integer& b);
-    bool operator==(int a);
-    bool operator!=(int a);
+//    bool operator==(int a);
+//    bool operator!=(int a);
     bool operator==(double a);
     bool operator!=(double a);
     // for cout/cin
@@ -48,10 +48,22 @@ class integer {
     // operator+ / operator+=
     friend integer operator+(integer a, const integer& b);
     integer& operator+=(const integer& a);
+    double operator+(double e);
+    friend double operator+(double a, const integer& b);
+    // operator- / operator-=
+    friend integer operator-(integer a, const integer& b);
+    integer& operator-=(const integer& a);
+    double operator-(double e);
+    friend double operator-(double a, const integer& b);
     // operator=
     integer& operator=(const integer& a);
-//        integer& operator=(int a);
-//        integer& operator=(double a);
+    // integer& operator=(int a);
+    integer& operator=(double a);
+    // operator[]
+//    friend integer& operator[](integer* vector, const integer& idx);
+//    friend double operator[](integer* vector, const integer& idx);
+    //
+    // friend double& operator=(double a, const integer& b);
 };
 
 }  // namespace gravilet
