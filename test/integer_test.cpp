@@ -19,6 +19,14 @@ TEST(Class_integer, Test_operatorEqual) {
     EXPECT_FALSE(a == c);
     EXPECT_TRUE(a != c);
     EXPECT_FALSE(a != b);
+    /**
+     * следующие 4 забракованы travis-ом - предлагает EXPECT_EQ/EXPECT_NE
+     * но в таком случае бы пришлось вместо
+     * EXPECT_FALSE(8 == a);   и   EXPECT_TRUE(8 != a);
+     * использовать одну лишь проверку
+     * EXPECT_NE(8, a);
+     * и тогда operator!= остался бы не полностью протестирован
+     */
     EXPECT_TRUE(7 == a);
     EXPECT_FALSE(8 == a);
     EXPECT_TRUE(8 != a);
@@ -27,6 +35,10 @@ TEST(Class_integer, Test_operatorEqual) {
     EXPECT_FALSE(8.0 == a);
     EXPECT_TRUE(8.0 != a);
     EXPECT_FALSE(7.0 != a);
+    /**
+     * следующие 4 забракованы travis-ом - предлагает EXPECT_EQ/EXPECT_NE
+     * но я против (см. случай выше)
+     */
     EXPECT_TRUE(a == 7);
     EXPECT_FALSE(a == 8);
     EXPECT_TRUE(a != 8);
@@ -46,4 +58,8 @@ TEST(Class_integer, CommonTests) {
     EXPECT_EQ(9, m);
     EXPECT_EQ(7, a);
     EXPECT_EQ(2, b);
+
+//    gravilet::integer n;
+//    n = a - b;
+//
 }

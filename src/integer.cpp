@@ -2,66 +2,58 @@
 
 namespace gravilet {
 
+    // operator== / operator!=
     bool operator==(const integer& a, const integer& b) {
         return (a.value == b.value);
     }
-
     bool operator!=(const integer& a, const integer& b) {
         return (a.value != b.value);
     }
-
     bool operator==(int a, const integer& b) {
         return (a == b.value);
     }
-
     bool operator!=(int a, const integer& b) {
         return (a != b.value);
     }
-
     bool operator==(double a, const integer& b) {
         return (a == b.value);
     }
-
     bool operator!=(double a, const integer& b) {
         return (a != b.value);
     }
-
     bool integer::operator==(int a) {
         return (this->value == a);
     }
-
     bool integer::operator!=(int a) {
         return (this->value != a);
     }
-
     bool integer::operator==(double a) {
         return (this->value == a);
     }
-
     bool integer::operator!=(double a) {
         return (this->value != a);
     }
 
-    std::ostream& operator<<(std::ostream& s, const integer& v)
-    {
+    // for cout/cin
+    std::ostream& operator<<(std::ostream& s, const integer& v) {
         s << v.value;
         return s;
     }
-    std::istream& operator>>(std::istream& s, integer& v)
-    {
+    std::istream& operator>>(std::istream& s, integer& v) {
         s >> v.value;
         return s;
     }
 
+    // operator+ / operator+=
+    integer operator+(integer a, const integer& b) {
+        std::cout << "integer operator+(integer a, const integer& b) : a = "
+                  << a << "; b = " << b << "\n";
+        a += b;
+        return a;
+    }
     integer& integer::operator+=(const integer& a) {
         this->value += a.value;
         return *this;
-    }
-
-    integer operator+(integer a, const integer& b) {
-        std::cout << "integer operator+(integer a, const integer& b) : a = " << a << "; b = " << b << "\n";
-        a += b;
-        return a;
     }
 
     // operator=
@@ -79,4 +71,4 @@ namespace gravilet {
 //    }
 
 
-}   // namespace grailet
+}   // namespace gravilet
