@@ -21,7 +21,7 @@ class BaseHash {
  public:
     virtual void insert(std::string key, std::string value) = 0;
     virtual void erase(std::string key) = 0;
-    virtual const std::string* find(std::string key) const = 0;
+    virtual std::string* find(std::string key)  = 0;
 };
 
 class OpenAddressingHash : BaseHash {
@@ -32,6 +32,7 @@ class OpenAddressingHash : BaseHash {
     size_t expand_step = collection_size;
     void expand_collection(size_t new_size);
     size_t find_hash(std::string key) const;
+    std::string default_value_for_not_found = "";
 
  public:
     explicit OpenAddressingHash(size_t size = default_hash_size, size_t step = 1) :
@@ -41,12 +42,12 @@ class OpenAddressingHash : BaseHash {
                                                                current_size(0) {}
     void insert(std::string key, std::string value) override;
     void erase(std::string key) override;
-    const std::string* find(std::string key) const override;
+    std::string* find(std::string key)  override;
     size_t size();
     int count(std::string key) const;
     // operators
     // [key] - create new if key not found (value is "")
-    std::string operator[](std::string key);
+    std::string& operator[](std::string key);
 };
 
 }  // namespace gravilet

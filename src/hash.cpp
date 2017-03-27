@@ -39,7 +39,7 @@ namespace gravilet {
         return hash;
     }
 
-    const std::string* OpenAddressingHash::find(std::string key) const {
+    std::string* OpenAddressingHash::find(std::string key)  {
         size_t hash = find_hash(key);
         return (hash != -1 && std::get<0>(collection[hash])) ?
                &std::get<2>(collection[hash]) : nullptr;
@@ -79,13 +79,12 @@ namespace gravilet {
             return 0;
     }
 
-    std::string OpenAddressingHash::operator[](std::string key) {
+    std::string& OpenAddressingHash::operator[](std::string key) {
         int cnt = count(key);
         if (cnt == 0) {
-            insert(key, "");    // let "" be default value
-            return "";
-        } else {
-            return *find(key);
+            insert(key, default_value_for_not_found);
         }
+        std::string* p = find(key);
+        return *p;
     }
 }   // namespace gravilet
