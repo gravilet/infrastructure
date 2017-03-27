@@ -2,7 +2,7 @@
 
 
 namespace gravilet {
-
+/*
     template <class K, class V>
     size_t BaseHash<K, V>::calculate_hash_function(K key, size_t collection_size) {
         size_t result;
@@ -96,4 +96,5 @@ namespace gravilet {
         V* p = find(key);
         return *p;
     }
+*/
 }   // namespace gravilet
