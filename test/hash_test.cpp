@@ -2,7 +2,7 @@
 #include <hash.h>
 
 TEST(OpenAddressingHash, CheckDuplicate) {
-    gravilet::OpenAddressingHash a;
+    gravilet::OpenAddressingHash<std::string, std::string> a;
     a.insert("aaa", "Alice");
     a.insert("aaa", "Berta");
 
@@ -15,7 +15,7 @@ TEST(OpenAddressingHash, CheckDuplicate) {
 TEST(OpenAddressingHash, CheckDuplicate_Improved) {
     // Improved - becauseby default we use only 1st letter for hash-function
     // and we must check that 'aaa' 'abb' are still different keys
-    gravilet::OpenAddressingHash a;
+    gravilet::OpenAddressingHash<std::string, std::string> a;
     a.insert("aaa", "Alice");
     a.insert("abb", "Berta");
 
@@ -25,7 +25,7 @@ TEST(OpenAddressingHash, CheckDuplicate_Improved) {
 }
 
 TEST(OpenAddressingHash, CheckOverrateSizeOfCollection) {   // if still 'hash_function_divisor = 26'
-    gravilet::OpenAddressingHash a(10);     // 10 < hash_function_divisor
+    gravilet::OpenAddressingHash<std::string, std::string> a(10);     // 10 < hash_function_divisor
     a.insert("aaa", "Alice1");
     a.insert("bbb", "Berta");
     a.insert("kkk", "Alice2");      // 'a' + 10 == 'k'
@@ -39,7 +39,7 @@ TEST(OpenAddressingHash, CheckOverrateSizeOfCollection) {   // if still 'hash_fu
 }
 
 TEST(OpenAddressingHash, CheckNotFound) {
-    gravilet::OpenAddressingHash a;
+    gravilet::OpenAddressingHash<std::string, std::string> a;
     a.insert("aaa", "Alice");
     a.insert("aaa", "Berta");
 
@@ -50,7 +50,7 @@ TEST(OpenAddressingHash, CheckNotFound) {
 }
 
 TEST(OpenAddressingHash, CheckOperator) {
-    gravilet::OpenAddressingHash a;
+    gravilet::OpenAddressingHash<std::string, std::string> a;
     a.insert("aaa", "Alice");
     a.insert("aaa", "Berta");
 
