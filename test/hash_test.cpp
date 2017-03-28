@@ -59,3 +59,73 @@ TEST(OpenAddressingHash, CheckOperator) {
 
     EXPECT_EQ("", a["bbb"]);  // == not found
 }
+
+//////////////////////////////////////////////////////////////////
+////////    custom function
+//////////////////////////////////////////////////////////////////
+int blah_blah(std::string key, int size) {
+    std::cout << "STRING BLAH" << std::endl;
+    return key.size() % size;
+}
+
+int blah_blah(int key, int size) {
+    std::cout << "INT BLAH" << std::endl;
+    return key ^ size;
+}
+
+TEST(OpenAddressingHash, CheckDuplicate_WithCustomFunctions) {
+    gravilet::OpenAddressingHash<std::string, std::string> a(10, 1, blah_blah);
+    a.insert("aaa", "Alice");
+    a.insert("aaa", "Berta");
+
+    // check correct overwriting the value
+    EXPECT_EQ("Berta", *a.find("aaa"));
+    // check that number of elements dont changet after overwriting
+    EXPECT_EQ(1, a.size());
+
+    gravilet::OpenAddressingHash<int, std::string> b(10, 1, blah_blah);
+    b.insert(17, "Alice");
+    b.insert(17, "Berta");
+
+    // check correct overwriting the value
+    EXPECT_EQ("Berta", *b.find(17));
+    // check that number of elements dont changet after overwriting
+    EXPECT_EQ(1, b.size());
+}
+
+//////////////////////////////////////////////////////////////////
+////////    functor
+//////////////////////////////////////////////////////////////////
+class FunctorCesar {
+    int offset;
+ public:
+    explicit FunctorCesar(int off) : offset(off) {}
+    int operator()(const int& e, int size) {
+        return (e + offset) % size;
+    }
+    int operator()(const std::string& e, int size) {
+        return (e.size() + offset) % size;
+    }
+};
+
+TEST(OpenAddressingHash, CheckDuplicate_WithFunctor) {
+    gravilet::OpenAddressingHash<std::string, std::string> a(10,
+                                                             1,
+                                                             FunctorCesar(7));
+    a.insert("aaa", "Alice");
+    a.insert("aaa", "Berta");
+
+    // check correct overwriting the value
+    EXPECT_EQ("Berta", *a.find("aaa"));
+    // check that number of elements dont changet after overwriting
+    EXPECT_EQ(1, a.size());
+
+    gravilet::OpenAddressingHash<int, std::string> b(10, 1, blah_blah);
+    b.insert(17, "Alice");
+    b.insert(17, "Berta");
+
+    // check correct overwriting the value
+    EXPECT_EQ("Berta", *b.find(17));
+    // check that number of elements dont changet after overwriting
+    EXPECT_EQ(1, b.size());
+}

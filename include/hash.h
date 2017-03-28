@@ -4,70 +4,94 @@
 #include <string>
 #include <vector>
 #include <tuple>
+#include <functional>
 
 namespace gravilet {
 
+template<class Key>
+int hash_func(Key& x, int size) {
+    return x % size;
+}
 
-template <class KEY, class VALUE> class BaseHash {
+template<>
+int hash_func<std::string>(std::string& x, int size) {
+    return x.size() % size;
+}
+
+template <class Key, class Value>
+class BaseHash {
  protected:
     size_t static const default_hash_size = 100;
     // for 'string-key' implementation of hash-function based on division on 26
-    size_t static const hash_function_divisor = 26;
     size_t collection_size;     // size of hash, not a number of elements
-    static size_t calculate_hash_function(KEY key, size_t collection_size);
-    explicit BaseHash(size_t size = default_hash_size) : collection_size(size) {}
+
+    /**
+     * int size - число значений, которое принимает эта хэш-функция => [0, size)
+     */
+//    using hash_function = int (*)(Key, int);
+    std::function<int(Key&, int)> hash;
+//    hash_function hash;
+    explicit BaseHash(size_t size = default_hash_size,
+                      std::function<int(Key&, int)> func = hash_func) :
+            collection_size(size),
+            hash(func) {}
 
  public:
-    virtual void insert(KEY key, VALUE value) = 0;
-    virtual void erase(KEY key) = 0;
-    virtual VALUE* find(KEY key)  = 0;
+    virtual void insert(Key key, Value value) = 0;
+    virtual void erase(Key key) = 0;
+    virtual Value* find(Key key)  = 0;
 };
 
-template <class KEY, class VALUE>
-size_t BaseHash<KEY, VALUE>::calculate_hash_function(KEY key, size_t collection_size) {
+
+/*
+template <class Key, class Value>
+size_t BaseHash<Key, Value>::calculate_hash_function(Key key, size_t collection_size) {
     size_t result;
     result = (key[0] % hash_function_divisor) * collection_size / hash_function_divisor;
     return result;
 }
-
-template <class KEY, class VALUE> class OpenAddressingHash : BaseHash<KEY, VALUE> {
+*/
+template <class Key, class Value>
+class OpenAddressingHash : BaseHash<Key, Value> {
  private:
-    std::vector<std::tuple<bool, KEY, VALUE>> collection;
+    std::vector<std::tuple<bool, Key, Value>> collection;
     size_t step;                           // step of Linear Probing
     size_t current_size;
     size_t expand_step;
     void expand_collection(size_t new_size);
     // find hash - position in the collection for the 'key'
-    size_t find_hash(KEY key) const;
+    size_t find_hash(Key key) const;
 
  public:
-    explicit OpenAddressingHash(size_t size = BaseHash<KEY, VALUE>::default_hash_size, size_t step = 1) :
-                                                    BaseHash<KEY, VALUE>(size),
+    explicit OpenAddressingHash(size_t size = BaseHash<Key, Value>::default_hash_size,
+                                size_t step = 1,
+                                std::function<int(Key&, int)> func = hash_func) :
+                                                    BaseHash<Key, Value>(size, func),
                                                     collection(size),
                                                     step(step),
                                                     current_size(0),
                                                     expand_step(size) {}
-    void insert(KEY key, VALUE value) override;
-    void erase(KEY key) override;
-    VALUE* find(KEY key) override;
+    void insert(Key key, Value value) override;
+    void erase(Key key) override;
+    Value* find(Key key) override;
     size_t size() {
         return current_size;
     }
     // number of used elemets
-    int isPresent(KEY key) const;
+    int isPresent(Key key) const;
     // operators
-    VALUE& operator[](KEY key);
+    Value& operator[](Key key);
 };
 
-template <class KEY, class VALUE>
-void OpenAddressingHash<KEY, VALUE>::expand_collection(size_t new_size) {
-    if (new_size <= BaseHash<KEY, VALUE>::collection_size)
+template <class Key, class Value>
+void OpenAddressingHash<Key, Value>::expand_collection(size_t new_size) {
+    if (new_size <= BaseHash<Key, Value>::collection_size)
         return;
-    std::vector<std::tuple<bool, KEY, VALUE>> collection_tmp;
-    BaseHash<KEY, VALUE>::collection_size = new_size;
+    std::vector<std::tuple<bool, Key, Value>> collection_tmp;
+    BaseHash<Key, Value>::collection_size = new_size;
     for (auto elem : collection) {
-        size_t hash = BaseHash<KEY, VALUE>::calculate_hash_function(std::get<1>(elem),
-                                                                    BaseHash<KEY, VALUE>::collection_size);
+        size_t hash = BaseHash<Key, Value>::hash(std::get<1>(elem),
+                                                 BaseHash<Key, Value>::collection_size);
         std::get<0>(collection_tmp[hash]) = true;
         std::get<1>(collection_tmp[hash]) = std::get<1>(elem);
         std::get<2>(collection_tmp[hash]) = std::get<2>(elem);
@@ -76,25 +100,25 @@ void OpenAddressingHash<KEY, VALUE>::expand_collection(size_t new_size) {
 }
 
 // find hash - position in the collection for the 'key'
-template <class KEY, class VALUE>
-size_t OpenAddressingHash<KEY, VALUE>::find_hash(KEY key) const {
-    size_t hash = BaseHash<KEY, VALUE>::calculate_hash_function(key, BaseHash<KEY, VALUE>::collection_size);
+template <class Key, class Value>
+size_t OpenAddressingHash<Key, Value>::find_hash(Key key) const {
+    size_t hash = BaseHash<Key, Value>::hash(key, BaseHash<Key, Value>::collection_size);
     int checked_count = 0;  // how many elements have been checked
     while (std::get<0>(collection[hash])
            && std::get<1>(collection[hash]) != key
-           && checked_count < BaseHash<KEY, VALUE>::collection_size) {
-        hash = (hash + step) % BaseHash<KEY, VALUE>::collection_size;
+           && checked_count < BaseHash<Key, Value>::collection_size) {
+        hash = (hash + step) % BaseHash<Key, Value>::collection_size;
         checked_count++;
     }
-    if (checked_count == BaseHash<KEY, VALUE>::collection_size)     // key (hash) not found
+    if (checked_count == BaseHash<Key, Value>::collection_size)     // key (hash) not found
         hash = -1;
     return hash;
 }
 
-template <class KEY, class VALUE>
-void OpenAddressingHash<KEY, VALUE>::insert(KEY key, VALUE value) {
-    if (current_size == BaseHash<KEY, VALUE>::collection_size)
-        expand_collection(BaseHash<KEY, VALUE>::collection_size + expand_step);
+template <class Key, class Value>
+void OpenAddressingHash<Key, Value>::insert(Key key, Value value) {
+    if (current_size == BaseHash<Key, Value>::collection_size)
+        expand_collection(BaseHash<Key, Value>::collection_size + expand_step);
     size_t hash = find_hash(key);
     if (hash != -1) {
         if (!std::get<0>(collection[hash]))
@@ -105,8 +129,8 @@ void OpenAddressingHash<KEY, VALUE>::insert(KEY key, VALUE value) {
     }
 }
 
-template <class KEY, class VALUE>
-void OpenAddressingHash<KEY, VALUE>::erase(KEY key) {
+template <class Key, class Value>
+void OpenAddressingHash<Key, Value>::erase(Key key) {
     size_t hash = find_hash(key);
     if (hash != -1 && std::get<0>(collection[hash])) {
         std::get<0>(collection[hash]) = false;
@@ -114,16 +138,16 @@ void OpenAddressingHash<KEY, VALUE>::erase(KEY key) {
     }
 }
 
-template <class KEY, class VALUE>
-VALUE* OpenAddressingHash<KEY, VALUE>::find(KEY key) {
+template <class Key, class Value>
+Value* OpenAddressingHash<Key, Value>::find(Key key) {
     size_t hash = find_hash(key);
     return (hash != -1 && std::get<0>(collection[hash])) ?
            &std::get<2>(collection[hash]) : nullptr;
 }
 
 // number of used elemets
-template <class KEY, class VALUE>
-int OpenAddressingHash<KEY, VALUE>::isPresent(KEY key) const {
+template <class Key, class Value>
+int OpenAddressingHash<Key, Value>::isPresent(Key key) const {
     size_t hash = find_hash(key);
     if (std::get<0>(collection[hash]))
         return 1;
@@ -131,13 +155,18 @@ int OpenAddressingHash<KEY, VALUE>::isPresent(KEY key) const {
         return 0;
 }
 
-template <class KEY, class VALUE>
-VALUE& OpenAddressingHash<KEY, VALUE>::operator[](KEY key) {        // [key] - create new if key not found
+/**
+ *
+ * @param key - create new if key not found
+ * @return
+ */
+template <class Key, class Value>
+Value& OpenAddressingHash<Key, Value>::operator[](Key key) {
     int cnt = isPresent(key);
     if (cnt == 0) {
-        insert(key, VALUE());
+        insert(key, Value());
     }
-    VALUE* p = find(key);
+    Value* p = find(key);
     return *p;
 }
 
