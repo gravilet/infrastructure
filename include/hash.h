@@ -6,23 +6,32 @@
 #include <tuple>
 #include <functional>
 
+/*
+template <class Key, class Value>
+size_t BaseHash<Key, Value>::calculate_hash_function(Key key, size_t collection_size) {
+    size_t result;
+    result = (key[0] % hash_function_divisor) * collection_size / hash_function_divisor;
+    return result;
+}
+*/
+
 namespace gravilet {
 
 template<class Key>
-int hash_func(Key& x, int size) {
-    return x % size;
+int hash_func(const Key& key, int size) {
+    return key % size;
 }
 
+// default hash-function : string->int
 template<>
-int hash_func<std::string>(std::string& x, int size) {
-    return x.size() % size;
+int hash_func<std::string>(const std::string& key, int size) {
+    return key.size() % size;
 }
 
 template <class Key, class Value>
 class BaseHash {
  protected:
     size_t static const default_hash_size = 100;
-    // for 'string-key' implementation of hash-function based on division on 26
     size_t collection_size;     // size of hash, not a number of elements
 
     /**
@@ -32,7 +41,7 @@ class BaseHash {
     std::function<int(Key&, int)> hash;
 //    hash_function hash;
     explicit BaseHash(size_t size = default_hash_size,
-                      std::function<int(Key&, int)> func = hash_func) :
+                      std::function<int(const Key&, int)> func = hash_func) :
             collection_size(size),
             hash(func) {}
 
@@ -42,15 +51,6 @@ class BaseHash {
     virtual Value* find(Key key)  = 0;
 };
 
-
-/*
-template <class Key, class Value>
-size_t BaseHash<Key, Value>::calculate_hash_function(Key key, size_t collection_size) {
-    size_t result;
-    result = (key[0] % hash_function_divisor) * collection_size / hash_function_divisor;
-    return result;
-}
-*/
 template <class Key, class Value>
 class OpenAddressingHash : BaseHash<Key, Value> {
  private:
@@ -64,8 +64,8 @@ class OpenAddressingHash : BaseHash<Key, Value> {
 
  public:
     explicit OpenAddressingHash(size_t size = BaseHash<Key, Value>::default_hash_size,
-                                size_t step = 1,
-                                std::function<int(Key&, int)> func = hash_func) :
+                                std::function<int(const Key&, int)> func = hash_func<Key>,
+                                size_t step = 1) :
                                                     BaseHash<Key, Value>(size, func),
                                                     collection(size),
                                                     step(step),
@@ -168,6 +168,34 @@ Value& OpenAddressingHash<Key, Value>::operator[](Key key) {
     }
     Value* p = find(key);
     return *p;
+}
+
+/**
+ * Example:
+ * gravilet::create<int, int>(10);
+ * gravilet::create<int, string>();
+ * gravilet::create<string, string>(5, blah_blah);
+ * gravilet::create<string, int>();
+ * @param size
+ * @param func
+ * @return
+ */
+template <class Key, class Value>
+OpenAddressingHash<Key, Value> create(size_t size = 10,
+                                      std::function<int(const Key&, int)> func = hash_func<Key>) {
+    return OpenAddressingHash<Key, Value>(size, func);
+}
+
+/**
+ * Example:
+ * gravilet::create<int>(); // with default hash_function
+ * gravilet::create<int>(blah_blah);
+ * @return
+ */
+template <class Key>
+OpenAddressingHash<Key, std::string> create(
+        std::function<int(const Key&, int)> func = hash_func<Key>) {
+    return create<Key, std::string>(100, func);
 }
 
 }  // namespace gravilet
